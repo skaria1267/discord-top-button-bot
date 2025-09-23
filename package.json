@@ -1,0 +1,19 @@
+{
+  "name": "discord-top-button-bot",
+  "version": "1.0.0",
+  "description": "Discord bot with top navigation button",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["discord", "bot", "navigation"],
+  "author": "skaria1267",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  }
+}
