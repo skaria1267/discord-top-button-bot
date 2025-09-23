@@ -59,20 +59,61 @@ client.on('interactionCreate', async interaction => {
         else if (interaction.isButton()) {
             if (interaction.customId === 'go_to_top') {
                 const channel = interaction.channel;
-                let jumpUrl = '';
                 
-                if (channel.isThread()) {
-                    jumpUrl = `https://discord.com/channels/${interaction.guildId}/${channel.id}`;
-                } else {
-                    jumpUrl = `https://discord.com/channels/${interaction.guildId}/${channel.id}`;
+                try {
+                    let jumpContent = '';
+                    
+                    if (channel.isThread()) {
+                        // 对于帖子/线程，获取起始消息
+                        const starterMessage = await channel.fetchStarterMessage();
+                        if (starterMessage) {
+                            const jumpUrl = `https://discord.com/channels/${interaction.guildId}/${channel.id}/${starterMessage.id}`;
+                            jumpContent = `🧵 **帖子顶部直达:**\n🔗 [点击跳转到帖子开头](${jumpUrl})`;
+                        } else {
+                            jumpContent = `🧵 **帖子导航:**\n⬆️ 向上滑动回到帖子开头\n📍 当前帖子: ${channel.name}`;
+                        }
+                    } else {
+                        // 对于普通频道，尝试获取最早的消息
+                        try {
+                            const messages = await channel.messages.fetch({ 
+                                limit: 1,
+                                after: '0'
+                            });
+                            
+                            if (messages.size > 0) {
+                                const firstMessage = messages.first();
+                                const jumpUrl = `https://discord.com/channels/${interaction.guildId}/${channel.id}/${firstMessage.id}`;
+                                jumpContent = `📍 **频道顶部直达:**\n🔗 [点击跳转到最早消息](${jumpUrl})\n⬆️ 或向上滑动屏幕`;
+                            } else {
+                                jumpContent = `📍 **频道导航:**\n⬆️ 向上滑动回到频道顶部\n🔄 或下拉刷新频道\n📋 频道: #${channel.name}`;
+                            }
+                        } catch (fetchError) {
+                            jumpContent = `📍 **回到顶部指南:**\n⬆️ 向上滑动屏幕回到顶部\n🔄 或下拉刷新频道\n📋 频道: #${channel.name}`;
+                        }
+                    }
+                    
+                    await interaction.reply({
+                        content: jumpContent,
+                        ephemeral: true
+                    });
+                    
+                    console.log(`🖱️ 用户 ${interaction.user.tag} 点击了回到顶部按钮`);
+                    
+                } catch (error) {
+                    console.error('处理跳转失败:', error);
+                    
+                    const channelType = channel.isThread() ? '帖子' : '频道';
+                    const channelName = channel.name;
+                    
+                    await interaction.reply({
+                        content: `📱 **${channelType}导航指南:**
+⬆️ 向上滑动屏幕回到顶部
+🔄 下拉刷新${channelType}
+📍 当前${channelType}: ${channelName}
+💡 提示: 快速双击顶部状态栏也可回到顶部`,
+                        ephemeral: true
+                    });
                 }
-                
-                await interaction.reply({
-                    content: `🔗 [点击这里回到顶部](${jumpUrl})`,
-                    ephemeral: true
-                });
-                
-                console.log(`🖱️ 用户 ${interaction.user.tag} 点击了回到顶部按钮`);
             }
         }
     } catch (error) {
