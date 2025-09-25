@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Client, GatewayIntentBits, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 
@@ -16,7 +17,7 @@ const commands = [
         .toJSON()
 ];
 
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     console.log(`✅ Bot已登录: ${client.user.tag}`);
     
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -35,6 +36,9 @@ client.once('ready', async () => {
 
 client.on('interactionCreate', async interaction => {
     try {
+        if (interaction.replied || interaction.deferred) {
+            return;
+        }
         if (interaction.isCommand()) {
             const { commandName } = interaction;
             
@@ -50,7 +54,7 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply({
                     content: '点击下方按钮回到顶部 ⬆️',
                     components: [row],
-                    ephemeral: true
+                    flags: 64
                 });
                 
                 console.log(`📝 用户 ${interaction.user.tag} 使用了 /回顶 命令`);
@@ -94,7 +98,7 @@ client.on('interactionCreate', async interaction => {
                     
                     await interaction.reply({
                         content: jumpContent,
-                        ephemeral: true
+                        flags: 64
                     });
                     
                     console.log(`🖱️ 用户 ${interaction.user.tag} 点击了回到顶部按钮`);
@@ -111,7 +115,7 @@ client.on('interactionCreate', async interaction => {
 🔄 下拉刷新${channelType}
 📍 当前${channelType}: ${channelName}
 💡 提示: 快速双击顶部状态栏也可回到顶部`,
-                        ephemeral: true
+                        flags: 64
                     });
                 }
             }
@@ -122,7 +126,7 @@ client.on('interactionCreate', async interaction => {
         if (!interaction.replied && !interaction.deferred) {
             await interaction.reply({
                 content: '⚠️ 处理请求时发生错误，请稍后重试。',
-                ephemeral: true
+                flags: 64
             });
         }
     }

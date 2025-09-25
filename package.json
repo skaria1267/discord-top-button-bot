@@ -7,11 +7,16 @@
     "start": "node index.js",
     "dev": "node index.js"
   },
-  "keywords": ["discord", "bot", "navigation"],
+  "keywords": [
+    "discord",
+    "bot",
+    "navigation"
+  ],
   "author": "skaria1267",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.14.1"
+    "discord.js": "^14.14.1",
+    "dotenv": "^17.2.2"
   },
   "engines": {
     "node": ">=16.9.0"
